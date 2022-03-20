@@ -1,0 +1,43 @@
+docker pull infracloudio/csvserver:latest
+docker pull prom/prometheus:v2.22.0
+
+git clone https://github.com/infracloudio/csvserver.git
+docker run -d infracloudio/csvserver:latest
+docker ps -a
+
+
+part1
+gencsv.sh
+
+if [ -f inputFile ]
+then
+rm -f inputFile
+fi
+
+if [ $# -eq 0 ]
+then
+touch inputFile
+#generate 10 random numbers with their index if no paramter is mention
+for count in {1..10}
+do
+
+echo "$count , $RANDOM" >> inputFile
+done
+fi
+
+
+
+
+
+docker cp inputFile /csvserver/inputdata
+docker run -d -p 9393:9393 -e CSVSERVER_BORDER='Orange' infracloudio/csvserver:latest
+
+from infracloudio/csvserver:latest
+COPY inputFile /csvserver/inputdata
+EXPOSE 9393 9393
+ENV CSVSERVER_BORDER='Orange'
+
+docker build -t myimage .
+docker run -d -p 9393:9393 myimage:latest
+
+
